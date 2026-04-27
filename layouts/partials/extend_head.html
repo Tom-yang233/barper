@@ -7,3 +7,42 @@
 {{ if or .Params.math .Site.Params.math }}
 {{ partial "math.html" . }}
 {{ end }}
+
+{{- if eq .RelPermalink "/cv/" }}
+<script>
+  (function () {
+    var storageKey = "cv-lang-preference";
+    var path = window.location.pathname;
+    var zhPath = "/cv/";
+    var enPath = "/en/cv/";
+    var manualToggle = document.referrer && document.referrer.indexOf(window.location.origin) === 0;
+
+    if (manualToggle) {
+      try {
+        localStorage.setItem(storageKey, path === enPath ? "en" : "zh");
+      } catch (e) {}
+      return;
+    }
+
+    var preferred = null;
+    try {
+      preferred = localStorage.getItem(storageKey);
+    } catch (e) {}
+
+    if (!preferred) {
+      var langs = navigator.languages || [navigator.language || ""];
+      preferred = langs.some(function (lang) {
+        return String(lang).toLowerCase().indexOf("zh") === 0;
+      }) ? "zh" : "en";
+    }
+
+    if (preferred === "en" && path === zhPath) {
+      window.location.replace(enPath + window.location.search + window.location.hash);
+    }
+
+    if (preferred === "zh" && path === enPath) {
+      window.location.replace(zhPath + window.location.search + window.location.hash);
+    }
+  })();
+</script>
+{{- end }}
